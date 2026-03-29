@@ -711,7 +711,7 @@ useEffect(() => {
     };
   }, [data, isBooting, authUser]);
 
-  const effectiveRole = role || "manager";
+  const effectiveRole = "manager";
   const currentMenu = effectiveRole === "manager" ? managerMenu : staffMenu;
 
   const presentiSettimana = useMemo(() => {
