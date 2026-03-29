@@ -3721,13 +3721,71 @@ return (
         <aside className={`sidebar ${mobileMenuOpen ? "mobile-open" : ""}`}>
           <div className="sidebarLogo"><img src={data.settings.logoUrl} alt="Urubamba logo" /></div>
           <div className="sidebarBrand"><h2>{data.settings.appTitle}</h2></div>
-          <nav className="menuList">
-            {currentMenu.map((item) => (
-              <button key={item.key} className={`menuItem ${section === item.key ? "active" : ""}`} onClick={() => { setSection(item.key); setMobileMenuOpen(false); }}>
-                <span>{item.icon}</span><span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
+<nav className="menuList">
+  <button className={`menuItem ${section === "dashboard" ? "active" : ""}`} onClick={() => { setSection("dashboard"); setMobileMenuOpen(false); }}>
+    <span>📊</span><span>Dashboard</span>
+  </button>
+  <button className={`menuItem ${section === "notifiche" ? "active" : ""}`} onClick={() => { setSection("notifiche"); setMobileMenuOpen(false); }}>
+    <span>🔔</span><span>Notifiche</span>
+  </button>
+  <button className={`menuItem ${section === "report" ? "active" : ""}`} onClick={() => { setSection("report"); setMobileMenuOpen(false); }}>
+    <span>🧾</span><span>Report automatico</span>
+  </button>
+  <button className={`menuItem ${section === "preordine" ? "active" : ""}`} onClick={() => { setSection("preordine"); setMobileMenuOpen(false); }}>
+    <span>📦</span><span>Pre-Ordine</span>
+  </button>
+  <button className={`menuItem ${section === "staff" ? "active" : ""}`} onClick={() => { setSection("staff"); setMobileMenuOpen(false); }}>
+    <span>👥</span><span>Staff</span>
+  </button>
+  <button className={`menuItem ${section === "turni" ? "active" : ""}`} onClick={() => { setSection("turni"); setMobileMenuOpen(false); }}>
+    <span>🗓️</span><span>Turni</span>
+  </button>
+  <button className={`menuItem ${section === "mance" ? "active" : ""}`} onClick={() => { setSection("mance"); setMobileMenuOpen(false); }}>
+    <span>💰</span><span>Mance</span>
+  </button>
+  <button className={`menuItem ${section === "haccp" ? "active" : ""}`} onClick={() => { setSection("haccp"); setMobileMenuOpen(false); }}>
+    <span>🧾</span><span>HACCP</span>
+  </button>
+  <button className={`menuItem ${section === "storia" ? "active" : ""}`} onClick={() => { setSection("storia"); setMobileMenuOpen(false); }}>
+    <span>📖</span><span>Storia</span>
+  </button>
+  <button className={`menuItem ${section === "schede" ? "active" : ""}`} onClick={() => { setSection("schede"); setMobileMenuOpen(false); }}>
+    <span>🍽️</span><span>Schede piatti</span>
+  </button>
+  <button className={`menuItem ${section === "guest" ? "active" : ""}`} onClick={() => { setSection("guest"); setMobileMenuOpen(false); }}>
+    <span>⭐</span><span>Guest notes</span>
+  </button>
+  <button className={`menuItem ${section === "inventario" ? "active" : ""}`} onClick={() => { setSection("inventario"); setMobileMenuOpen(false); }}>
+    <span>🍷</span><span>Inventario vini</span>
+  </button>
+  <button className={`menuItem ${section === "magazzinoCucina" ? "active" : ""}`} onClick={() => { setSection("magazzinoCucina"); setMobileMenuOpen(false); }}>
+    <span>🧊</span><span>Magazzino cucina</span>
+  </button>
+  <button className={`menuItem ${section === "magazzinoDetergenti" ? "active" : ""}`} onClick={() => { setSection("magazzinoDetergenti"); setMobileMenuOpen(false); }}>
+    <span>🧼</span><span>Magazzino detergenti</span>
+  </button>
+  <button className={`menuItem ${section === "ordini" ? "active" : ""}`} onClick={() => { setSection("ordini"); setMobileMenuOpen(false); }}>
+    <span>🚚</span><span>Ordini</span>
+  </button>
+  <button className={`menuItem ${section === "beverage" ? "active" : ""}`} onClick={() => { setSection("beverage"); setMobileMenuOpen(false); }}>
+    <span>🍷</span><span>Beverage</span>
+  </button>
+  <button className={`menuItem ${section === "foodcost" ? "active" : ""}`} onClick={() => { setSection("foodcost"); setMobileMenuOpen(false); }}>
+    <span>🧮</span><span>Food cost</span>
+  </button>
+  <button className={`menuItem ${section === "drinkcost" ? "active" : ""}`} onClick={() => { setSection("drinkcost"); setMobileMenuOpen(false); }}>
+    <span>🍸</span><span>Drink cost</span>
+  </button>
+  <button className={`menuItem ${section === "diario" ? "active" : ""}`} onClick={() => { setSection("diario"); setMobileMenuOpen(false); }}>
+    <span>📝</span><span>Diario servizio</span>
+  </button>
+  <button className={`menuItem ${section === "performance" ? "active" : ""}`} onClick={() => { setSection("performance"); setMobileMenuOpen(false); }}>
+    <span>📈</span><span>Performance staff</span>
+  </button>
+  <button className={`menuItem ${section === "impostazioni" ? "active" : ""}`} onClick={() => { setSection("impostazioni"); setMobileMenuOpen(false); }}>
+    <span>⚙️</span><span>Impostazioni</span>
+  </button>
+</nav>
           <div style={{ marginTop: 16, marginBottom: 12, padding: "12px 14px", borderRadius: 14, background: "rgba(255,255,255,0.12)", color: "white", fontSize: 13, fontWeight: 700, textAlign: "center" }}>{saveMessage}</div>
           <button className="btn logoutBtn" onClick={logout}>Esci</button>
         </aside>
