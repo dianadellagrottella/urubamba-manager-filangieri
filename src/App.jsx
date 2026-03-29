@@ -712,7 +712,12 @@ useEffect(() => {
   }, [data, isBooting, authUser]);
 
   const effectiveRole = "manager";
-  const currentMenu = effectiveRole === "manager" ? managerMenu : staffMenu;
+  
+const currentMenu = [
+  ...managerMenu,
+  { key: "magazzinoCucina", label: "Magazzino cucina", icon: "🧊" },
+  { key: "magazzinoDetergenti", label: "Magazzino detergenti", icon: "🧼" },
+];
 
   const presentiSettimana = useMemo(() => {
     return data.turni.rows.reduce((total, row) => {
