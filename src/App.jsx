@@ -711,12 +711,29 @@ useEffect(() => {
     };
   }, [data, isBooting, authUser]);
 
-  const effectiveRole = "manager";
-  
-const currentMenu = [
-  ...managerMenu,
+  const effectiveRole = role || "manager";
+  const currentMenu = [
+  { key: "dashboard", label: "Dashboard", icon: "📊" },
+  { key: "notifiche", label: "Notifiche", icon: "🔔" },
+  { key: "report", label: "Report automatico", icon: "🧾" },
+  { key: "preordine", label: "Pre-Ordine", icon: "📦" },
+  { key: "staff", label: "Staff", icon: "👥" },
+  { key: "turni", label: "Turni", icon: "🗓️" },
+  { key: "mance", label: "Mance", icon: "💰" },
+  { key: "haccp", label: "HACCP", icon: "🧾" },
+  { key: "storia", label: "Storia", icon: "📖" },
+  { key: "schede", label: "Schede piatti", icon: "🍽️" },
+  { key: "guest", label: "Guest notes", icon: "⭐" },
+  { key: "inventario", label: "Inventario vini", icon: "🍷" },
   { key: "magazzinoCucina", label: "Magazzino cucina", icon: "🧊" },
   { key: "magazzinoDetergenti", label: "Magazzino detergenti", icon: "🧼" },
+  { key: "ordini", label: "Ordini", icon: "🚚" },
+  { key: "beverage", label: "Beverage", icon: "🍷" },
+  { key: "foodcost", label: "Food cost", icon: "🧮" },
+  { key: "drinkcost", label: "Drink cost", icon: "🍸" },
+  { key: "diario", label: "Diario servizio", icon: "📝" },
+  { key: "performance", label: "Performance staff", icon: "📈" },
+  { key: "impostazioni", label: "Impostazioni", icon: "⚙️" },
 ];
 
   const presentiSettimana = useMemo(() => {
