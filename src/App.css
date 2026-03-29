@@ -40,3 +40,13 @@
 .read-the-docs {
   color: #888;
 }
+
+.sidebar {
+  overflow-y: auto !important;
+  max-height: 100vh !important;
+}
+
+.menuList {
+  overflow: visible !important;
+  padding-bottom: 120px !important;
+}
