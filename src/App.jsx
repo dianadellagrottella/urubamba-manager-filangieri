@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "./supabase";
+import { supabase } from "./supabase.js";
 import "./App.css";
 
 const STORAGE_KEY = "urubamba-manager-complete-v42-bella-completa";
