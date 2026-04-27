@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "./supabase.js";
+// import { supabase } from "./supabase.js";
 import "./App.css";
 
 const STORAGE_KEY = "urubamba-manager-complete-v42-bella-completa";
@@ -500,11 +500,11 @@ export default function App() {
 useEffect(() => {
   const loadCloud = async () => {
     try {
-      const { data: cloudData, error } = await supabase
-        .from("app_data")
-        .select("content")
-        .eq("id", 1)
-        .single();
+      // const { data: cloudData, error } = await supabase
+       // .from("app_data")
+        // .select("content")
+        // .eq("id", 1)
+        // .single();
 
       if (error) {
         console.log("Nessun dato cloud trovato");
