@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
-// import { supabase } from "./supabase.js";
+// // import { supabase } from "./supabase.js";
 import "./App.css";
 
 const STORAGE_KEY = "urubamba-manager-complete-v42-bella-completa";
@@ -491,37 +491,28 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState("Pronto");
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("app-data");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === "object") setData(parsed);
-      }
-    } catch (err) {
-      console.error("Errore caricamento dati locali:", err);
-    } finally {
-      setIsBooting(false);
-      setSaveStatus("Salvato");
-    }
-  }, []);
+  const saved = localStorage.getItem("app-data");
+  if (saved) {
+    setData(JSON.parse(saved));
+  }
+}, []);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      try {
-        setSaveStatus("Salvataggio in corso...");
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        localStorage.setItem("app-data", JSON.stringify(data));
-        setSaveStatus("Salvato");
-      } catch (err) {
-        console.error("Errore salvataggio locale:", err);
-        setSaveStatus("Errore salvataggio");
-      }
-    }, 350);
+useEffect(() => {
+  setSaveStatus("Salvataggio locale attivo");
+}, []);
 
-    return () => clearTimeout(timeout);
-  }, [data]);
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setSaveStatus("Salvataggio in corso...");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem("app-data", JSON.stringify(data));
+    setSaveStatus("Salvato in locale");
+  }, 500);
 
-  const [isBooting, setIsBooting] = useState(true);
+  return () => clearTimeout(timeout);
+}, [data]);
+
+  const [isBooting, setIsBooting] = useState(false);
 
   const [role, setRole] = useState(null);
   const [section, setSection] = useState("dashboard");
@@ -561,28 +552,25 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Versione locale: niente Supabase, niente login cloud.
-    // Il login resta quello con email/password locali definite sopra.
-    setAuthUser(null);
-    setSaveMessage("Salvataggio locale attivo");
     setIsBooting(false);
-    return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
+    setSaveMessage("Salvataggio locale attivo");
+    const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("app-data");
+    if (saved) {
+      try {
+        setData(JSON.parse(saved));
+      } catch {
+        setData(initialData);
+      }
+    }
   }, []);
 
   useEffect(() => {
     if (isBooting) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      localStorage.setItem("app-data", JSON.stringify(data));
-      setSaveMessage("Salvato su questo dispositivo");
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
-    } catch (err) {
-      console.error("Errore salvataggio locale:", err);
-      setSaveMessage("Errore salvataggio locale");
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem("app-data", JSON.stringify(data));
+    setSaveMessage("Salvato in locale");
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
@@ -1496,7 +1484,7 @@ function addHaccp() {
       URL.revokeObjectURL(url);
       setSaveMessage("Backup scaricato");
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => setSaveMessage("Sincronizzazione cloud attiva"), 1200);
+      saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
     } catch (err) {
       console.error("Errore backup:", err);
       setSaveMessage("Errore backup");
@@ -1518,7 +1506,7 @@ function addHaccp() {
         setData(nextData);
         setSaveMessage("Backup ripristinato");
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = setTimeout(() => setSaveMessage("Sincronizzazione cloud attiva"), 1200);
+        saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
       } catch (err) {
         console.error("Errore ripristino backup:", err);
         setSaveMessage("Errore ripristino");
@@ -1612,7 +1600,7 @@ function addHaccp() {
 
       setSaveMessage("Export CSV pronto");
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => setSaveMessage("Sincronizzazione cloud attiva"), 1200);
+      saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
     } catch (err) {
       console.error("Errore export CSV:", err);
       setSaveMessage("Errore export");
