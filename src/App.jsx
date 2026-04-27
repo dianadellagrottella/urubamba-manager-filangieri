@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
-// // // import { supabase } from "./supabase.js";
+// import { supabase } from "./supabase.js";
 import "./App.css";
 
 const STORAGE_KEY = "urubamba-manager-complete-v42-bella-completa";
@@ -489,54 +489,6 @@ const initialData = {
 export default function App() {
   const [data, setData] = useState(initialData);
   const [saveStatus, setSaveStatus] = useState("Pronto");
-
-  useEffect(() => {
-  const saved = localStorage.getItem("app-data");
-  if (saved) {
-    setData(JSON.parse(saved));
-  }
-}, []);
-
-useEffect(() => {
-  const loadCloud = async () => {
-    try {
-//       // const { data: cloudData, error } = await supabase
-       // .from("app_data")
-        // .select("content")
-        // .eq("id", 1)
-        // .single();
-
-      if (error) {
-        console.log("Nessun dato cloud trovato");
-        return;
-      }
-
-      if (cloudData?.content) {
-        setData(cloudData.content);
-      }
-    } catch (err) {
-      console.error("Errore caricamento cloud", err);
-    }
-  };
-
-  loadCloud();
-}, []);
-
-useEffect(() => {
-  const timeout = setTimeout(() => {
-
-    setSaveStatus("Salvataggio in corso...");
-
-    localStorage.setItem("app-data", JSON.stringify(data));
-    // saveToCloud(data);
-
-    setSaveStatus("Salvato");
-
-  }, 500);
-
-  return () => clearTimeout(timeout);
-}, [data]);
-
   const [isBooting, setIsBooting] = useState(true);
 
   const [role, setRole] = useState(null);
@@ -566,6 +518,42 @@ useEffect(() => {
 
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("app-data");
+      if (saved) {
+        setData(JSON.parse(saved));
+      }
+    } catch (err) {
+      console.error("Errore caricamento dati locali:", err);
+      setData(initialData);
+    } finally {
+      setIsBooting(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isBooting) return;
+
+    const timeout = setTimeout(() => {
+      try {
+        setSaveStatus("Salvataggio in corso...");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem("app-data", JSON.stringify(data));
+        setSaveStatus("Salvato");
+        setSaveMessage("Salvato sul dispositivo");
+      } catch (err) {
+        console.error("Errore salvataggio locale:", err);
+        setSaveStatus("Errore salvataggio");
+        setSaveMessage("Errore salvataggio locale");
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [data, isBooting]);
+
+
+
+  useEffect(() => {
     function onResize() {
       setIsMobileView(window.innerWidth <= 900);
       if (window.innerWidth > 900) setMobileMenuOpen(false);
@@ -577,139 +565,18 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function applyRole(user) {
-      if (!user) {
-        if (!mounted) return;
-        setAuthUser(null);
-        setRole(null);
-        setSection("dashboard");
-        return;
-      }
-
-      setAuthUser(user);
-
-      try {
-//         const { data: profile, error } = await supabase
-          .from("profiles")
-          .select("role, email")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-
-        if (!mounted) return;
-
-        const nextRole = profile?.role === "manager" ? "manager" : "staff";
-        setRole(nextRole);
-        setSection(nextRole === "manager" ? "dashboard" : "turni");
-        setEmail(profile?.email || user.email || "");
-        setLoginError("");
-      } catch (err) {
-        console.error("Errore lettura profilo:", err);
-        if (!mounted) return;
-        setLoginError("Profilo utente non trovato. Controlla la tabella profiles.");
-        setRole(null);
-      }
-    }
-
-    async function loadAuthAndData() {
-      try {
-//         const { data: authData, error: authError } = await supabase.auth.getSession();
-        if (authError) throw authError;
-
-        const user = authData?.session?.user || null;
-        await applyRole(user);
-
-//         const { data: row, error } = await supabase
-          .from("restaurant_state")
-          .select("app_data")
-          .eq("id", REMOTE_ROW_ID)
-          .single();
-
-        if (error && error.code !== "PGRST116") {
-          throw error;
-        }
-
-        if (row?.app_data) {
-          if (mounted) setData(row.app_data);
-        } else {
-//           const { error: upsertError } = await supabase
-            .from("restaurant_state")
-            .upsert({
-              id: REMOTE_ROW_ID,
-              app_data: initialData,
-              updated_at: new Date().toISOString(),
-            })
-            .select();
-
-          if (upsertError) throw upsertError;
-          if (mounted) setData(initialData);
-        }
-      } catch (err) {
-        console.error("Errore caricamento Supabase:", err);
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          try {
-            if (mounted) setData(JSON.parse(saved));
-          } catch {
-            if (mounted) setData(initialData);
-          }
-        } else {
-          if (mounted) setData(initialData);
-        }
-      } finally {
-        if (mounted) setIsBooting(false);
-      }
-    }
-
-    loadAuthAndData();
-
-//     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      await applyRole(session?.user || null);
-    });
+    // Versione locale: niente Supabase, niente login cloud.
+    // L'app parte sempre in modalità manager e salva sul dispositivo.
+    setAuthUser(null);
+    setRole("manager");
+    setSection((current) => current || "dashboard");
+    setSaveMessage("Salvataggio locale attivo");
+    setIsBooting(false);
 
     return () => {
-      mounted = false;
-      listener?.subscription?.unsubscribe?.();
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    if (isBooting) return;
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-    const saveRemote = async () => {
-      try {
-//         const { error } = await supabase
-          .from("restaurant_state")
-          .upsert({
-            id: REMOTE_ROW_ID,
-            app_data: data,
-            updated_at: new Date().toISOString(),
-          })
-          .select();
-
-        if (error) throw error;
-
-        setSaveMessage("Salvato su cloud");
-        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = setTimeout(() => setSaveMessage("Sincronizzazione cloud attiva"), 1200);
-      } catch (err) {
-        console.error("Errore salvataggio Supabase:", err);
-        setSaveMessage("Errore sync cloud");
-      }
-    };
-
-    const timeout = setTimeout(saveRemote, 500);
-    return () => {
-      clearTimeout(timeout);
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
-  }, [data, isBooting, authUser]);
 
   const effectiveRole = role || "manager";
   const currentMenu = [
