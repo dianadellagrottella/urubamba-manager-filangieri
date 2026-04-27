@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
-// import { supabase } from "./supabase.js";
+// // // import { supabase } from "./supabase.js";
 import "./App.css";
 
 const STORAGE_KEY = "urubamba-manager-complete-v42-bella-completa";
@@ -500,7 +500,7 @@ export default function App() {
 useEffect(() => {
   const loadCloud = async () => {
     try {
-      // const { data: cloudData, error } = await supabase
+//       // const { data: cloudData, error } = await supabase
        // .from("app_data")
         // .select("content")
         // .eq("id", 1)
@@ -528,7 +528,7 @@ useEffect(() => {
     setSaveStatus("Salvataggio in corso...");
 
     localStorage.setItem("app-data", JSON.stringify(data));
-    saveToCloud(data);
+    // saveToCloud(data);
 
     setSaveStatus("Salvato");
 
@@ -591,7 +591,7 @@ useEffect(() => {
       setAuthUser(user);
 
       try {
-        const { data: profile, error } = await supabase
+//         const { data: profile, error } = await supabase
           .from("profiles")
           .select("role, email")
           .eq("id", user.id)
@@ -616,13 +616,13 @@ useEffect(() => {
 
     async function loadAuthAndData() {
       try {
-        const { data: authData, error: authError } = await supabase.auth.getSession();
+//         const { data: authData, error: authError } = await supabase.auth.getSession();
         if (authError) throw authError;
 
         const user = authData?.session?.user || null;
         await applyRole(user);
 
-        const { data: row, error } = await supabase
+//         const { data: row, error } = await supabase
           .from("restaurant_state")
           .select("app_data")
           .eq("id", REMOTE_ROW_ID)
@@ -635,7 +635,7 @@ useEffect(() => {
         if (row?.app_data) {
           if (mounted) setData(row.app_data);
         } else {
-          const { error: upsertError } = await supabase
+//           const { error: upsertError } = await supabase
             .from("restaurant_state")
             .upsert({
               id: REMOTE_ROW_ID,
@@ -666,7 +666,7 @@ useEffect(() => {
 
     loadAuthAndData();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+//     const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       await applyRole(session?.user || null);
     });
 
@@ -684,7 +684,7 @@ useEffect(() => {
 
     const saveRemote = async () => {
       try {
-        const { error } = await supabase
+//         const { error } = await supabase
           .from("restaurant_state")
           .upsert({
             id: REMOTE_ROW_ID,
