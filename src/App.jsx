@@ -492,25 +492,34 @@ export default function App() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setData(JSON.parse(saved));
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("app-data");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") setData(parsed);
+      }
     } catch (err) {
-      console.error("Errore caricamento locale:", err);
+      console.error("Errore caricamento dati locali:", err);
     } finally {
       setIsBooting(false);
+      setSaveStatus("Salvato");
     }
   }, []);
 
   useEffect(() => {
-    if (isBooting) return;
     const timeout = setTimeout(() => {
-      setSaveStatus("Salvataggio in corso...");
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      setSaveStatus("Salvato");
-    }, 500);
+      try {
+        setSaveStatus("Salvataggio in corso...");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem("app-data", JSON.stringify(data));
+        setSaveStatus("Salvato");
+      } catch (err) {
+        console.error("Errore salvataggio locale:", err);
+        setSaveStatus("Errore salvataggio");
+      }
+    }, 350);
 
     return () => clearTimeout(timeout);
-  }, [data, isBooting]);
+  }, [data]);
 
   const [isBooting, setIsBooting] = useState(true);
 
@@ -536,7 +545,7 @@ export default function App() {
   });
   const [beverageSearch, setBeverageSearch] = useState("");
   const [drinkSearch, setDrinkSearch] = useState("");
-  const [saveMessage, setSaveMessage] = useState("Sincronizzazione cloud attiva");
+  const [saveMessage, setSaveMessage] = useState("Salvataggio locale attivo");
   const saveTimerRef = useRef(null);
 
 
@@ -551,21 +560,32 @@ export default function App() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Cloud e autenticazione Supabase disattivati.
-  // L'app resta protetta dal login locale e salva i dati sul dispositivo.
+  useEffect(() => {
+    // Versione locale: niente Supabase, niente login cloud.
+    // Il login resta quello con email/password locali definite sopra.
+    setAuthUser(null);
+    setSaveMessage("Salvataggio locale attivo");
+    setIsBooting(false);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (isBooting) return;
-
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      setSaveMessage("Salvato sul dispositivo");
+      localStorage.setItem("app-data", JSON.stringify(data));
+      setSaveMessage("Salvato su questo dispositivo");
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
     } catch (err) {
       console.error("Errore salvataggio locale:", err);
       setSaveMessage("Errore salvataggio locale");
     }
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
   }, [data, isBooting]);
 
   const effectiveRole = role || "manager";
