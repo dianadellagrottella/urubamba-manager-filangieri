@@ -489,6 +489,29 @@ const initialData = {
 export default function App() {
   const [data, setData] = useState(initialData);
   const [saveStatus, setSaveStatus] = useState("Pronto");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setData(JSON.parse(saved));
+    } catch (err) {
+      console.error("Errore caricamento locale:", err);
+    } finally {
+      setIsBooting(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isBooting) return;
+    const timeout = setTimeout(() => {
+      setSaveStatus("Salvataggio in corso...");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      setSaveStatus("Salvato");
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [data, isBooting]);
+
   const [isBooting, setIsBooting] = useState(true);
 
   const [role, setRole] = useState(null);
@@ -518,42 +541,6 @@ export default function App() {
 
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("app-data");
-      if (saved) {
-        setData(JSON.parse(saved));
-      }
-    } catch (err) {
-      console.error("Errore caricamento dati locali:", err);
-      setData(initialData);
-    } finally {
-      setIsBooting(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isBooting) return;
-
-    const timeout = setTimeout(() => {
-      try {
-        setSaveStatus("Salvataggio in corso...");
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        localStorage.setItem("app-data", JSON.stringify(data));
-        setSaveStatus("Salvato");
-        setSaveMessage("Salvato sul dispositivo");
-      } catch (err) {
-        console.error("Errore salvataggio locale:", err);
-        setSaveStatus("Errore salvataggio");
-        setSaveMessage("Errore salvataggio locale");
-      }
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [data, isBooting]);
-
-
-
-  useEffect(() => {
     function onResize() {
       setIsMobileView(window.innerWidth <= 900);
       if (window.innerWidth > 900) setMobileMenuOpen(false);
@@ -564,19 +551,22 @@ export default function App() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  useEffect(() => {
-    // Versione locale: niente Supabase, niente login cloud.
-    // L'app parte sempre in modalità manager e salva sul dispositivo.
-    setAuthUser(null);
-    setRole("manager");
-    setSection((current) => current || "dashboard");
-    setSaveMessage("Salvataggio locale attivo");
-    setIsBooting(false);
+  // Cloud e autenticazione Supabase disattivati.
+  // L'app resta protetta dal login locale e salva i dati sul dispositivo.
 
-    return () => {
+  useEffect(() => {
+    if (isBooting) return;
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      setSaveMessage("Salvato sul dispositivo");
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    };
-  }, []);
+      saveTimerRef.current = setTimeout(() => setSaveMessage("Salvataggio locale attivo"), 1200);
+    } catch (err) {
+      console.error("Errore salvataggio locale:", err);
+      setSaveMessage("Errore salvataggio locale");
+    }
+  }, [data, isBooting]);
 
   const effectiveRole = role || "manager";
   const currentMenu = [
